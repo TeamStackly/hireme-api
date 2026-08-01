@@ -3,16 +3,20 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
-# Read Database URL
+# Read DATABASE_URL from .env
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Debug (Temporary)
+print("DATABASE_URL =", DATABASE_URL)
+
+# Check if DATABASE_URL exists
 if DATABASE_URL is None:
     raise ValueError("DATABASE_URL is not found in .env file")
 
-# SQLAlchemy Engine
+# Create SQLAlchemy Engine
 engine = create_engine(
     DATABASE_URL,
     echo=True,
@@ -26,9 +30,8 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
-# Base Model
+# Base Class
 Base = declarative_base()
-
 
 # Dependency
 def get_db():
