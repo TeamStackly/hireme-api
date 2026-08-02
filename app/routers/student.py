@@ -254,3 +254,81 @@ def my_applications(
     ).all()
 
     return applications
+
+@router.post(
+    "/apply/{job_id}",
+    response_model=ApplicationResponse,
+    status_code=status.HTTP_201_CREATED
+)
+def apply_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(StudentProfile).filter(
+        StudentProfile.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    job = db.query(Job).filter(
+        Job.id == job_id
+    ).first()
+
+    if not job:
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found"
+        )
+
+    existing = db.query(Application).filter(
+        Application.job_id == job_id,
+        Application.student_id == student.id
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Already applied for this job"
+        )
+
+    application = Application(
+        job_id=job_id,
+        student_id=student.id
+    )
+
+    db.add(application)
+    db.commit()
+    db.refresh(application)
+
+    return application
+
+@router.get(
+    "/my-applications",
+    response_model=list[ApplicationResponse]
+)
+def my_applications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(StudentProfile).filter(
+        StudentProfile.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    applications = db.query(Application).filter(
+        Application.student_id == student.id
+    ).all()
+
+    return applications
