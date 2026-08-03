@@ -1,7 +1,10 @@
+from typing import Optional
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
+    Query,
     status
 )
 from app.core.dependencies import require_company
@@ -153,40 +156,6 @@ def get_my_company_profile(
 
 
 # ============================================================
-# Get Company By ID (Public)
-# ============================================================
-
-@router.get(
-    "/{company_id}",
-    response_model=CompanyProfileResponse
-)
-def get_company_by_id(
-    company_id: int,
-    db: Session = Depends(get_db)
-):
-
-    company = (
-        db.query(CompanyProfile)
-        .filter(
-            CompanyProfile.id == company_id
-        )
-        .first()
-    )
-
-    if not company:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Company not found."
-        )
-
-    return company
-
-from typing import Optional
-from fastapi import Query
-
-
-# ============================================================
 # Update Company Profile
 # ============================================================
 
@@ -313,6 +282,7 @@ def delete_company_profile(
         )
 
 
+
 # ============================================================
 # Get All Companies (Admin Only)
 # ============================================================
@@ -325,7 +295,7 @@ def get_all_companies(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: User = Depends(require_company)
 ):
 
     skip = (page - 1) * limit
@@ -338,6 +308,8 @@ def get_all_companies(
     )
 
     return companies
+
+
 
 
 # ============================================================
@@ -383,6 +355,7 @@ def search_company(
     return companies
 
 
+
 # ============================================================
 # Approve Company (Admin Only)
 # ============================================================
@@ -394,7 +367,7 @@ def search_company(
 def approve_company(
     company_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: User = Depends(require_company)
 ):
 
     company = (
@@ -441,7 +414,7 @@ def approve_company(
 def reject_company(
     company_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    current_user: User = Depends(require_company)
 ):
 
     company = (
@@ -475,3 +448,37 @@ def reject_company(
             status_code=500,
             detail="Unable to reject company."
         )
+        
+
+# ============================================================
+# Get Company By ID (Public)
+# ============================================================
+
+@router.get(
+    "/{company_id}",
+    response_model=CompanyProfileResponse
+)
+def get_company_by_id(
+    company_id: int,
+    db: Session = Depends(get_db)
+):
+
+    company = (
+        db.query(CompanyProfile)
+        .filter(
+            CompanyProfile.id == company_id
+        )
+        .first()
+    )
+
+    if not company:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Company not found."
+        )
+
+    return company
+
+from typing import Optional
+from fastapi import Query
