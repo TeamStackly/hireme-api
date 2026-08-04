@@ -17,9 +17,9 @@ ALGORITHM = os.getenv("ALGORITHM")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
-# ==========================
-# Get Current User
-# ==========================
+# ==========================================================
+# Get Current Logged-in User
+# ==========================================================
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
@@ -46,7 +46,9 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(
+        User.email == email
+    ).first()
 
     if user is None:
         raise credentials_exception
@@ -54,9 +56,9 @@ def get_current_user(
     return user
 
 
-# ==========================
+# ==========================================================
 # Admin Authorization
-# ==========================
+# ==========================================================
 def require_admin(
     current_user: User = Depends(get_current_user)
 ):
@@ -70,9 +72,9 @@ def require_admin(
     return current_user
 
 
-# ==========================
+# ==========================================================
 # Company Authorization
-# ==========================
+# ==========================================================
 def require_company(
     current_user: User = Depends(get_current_user)
 ):
@@ -86,9 +88,9 @@ def require_company(
     return current_user
 
 
-# ==========================
+# ==========================================================
 # Student Authorization
-# ==========================
+# ==========================================================
 def require_student(
     current_user: User = Depends(get_current_user)
 ):

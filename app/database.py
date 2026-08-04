@@ -12,6 +12,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
     raise ValueError("DATABASE_URL is not found in .env file")
 
+print("DATABASE_URL =", DATABASE_URL)
+
 # SQLAlchemy Engine
 engine = create_engine(
     DATABASE_URL,

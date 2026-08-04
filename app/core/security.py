@@ -1,69 +1,84 @@
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
+from typing import Optional
 import os
 
-# Load environment variables
+from dotenv import load_dotenv
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
 load_dotenv()
 
+# ==========================================================
+# Environment Variables
+# ==========================================================
+
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY not found in .env file")
+
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
 )
 
+# ==========================================================
 # Password Hashing
+# ==========================================================
+
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
 )
 
 
-# ==========================
-# Hash Password
-# ==========================
 def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-# ==========================
-# Verify Password
-# ==========================
-def verify_password(plain_password: str, hashed_password: str):
+def verify_password(
+    plain_password: str,
+    hashed_password: str
+):
     return pwd_context.verify(
         plain_password,
         hashed_password
     )
 
 
-# ==========================
-# Create JWT Token
-# ==========================
-def create_access_token(data: dict):
+# ==========================================================
+# Create JWT Access Token
+# ==========================================================
+
+def create_access_token(
+    data: dict,
+    expires_delta: Optional[timedelta] = None
+):
 
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        )
 
-    to_encode.update(
-        {
-            "exp": expire
-        }
-    )
+    to_encode.update({"exp": expire})
 
-    return jwt.encode(
+    encoded_jwt = jwt.encode(
         to_encode,
         SECRET_KEY,
         algorithm=ALGORITHM
     )
 
+    return encoded_jwt
 
-# ==========================
+
+# ==========================================================
 # Verify JWT Token
-# ==========================
+# ==========================================================
+
 def verify_access_token(token: str):
 
     try:
