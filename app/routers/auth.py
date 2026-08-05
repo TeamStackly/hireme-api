@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
-
-=======
 from datetime import timedelta
 
 from fastapi import (
@@ -18,22 +12,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
 
->>>>>>> company-module
 from app.database import get_db
 from app.models import User
 from app.schemas import (
     UserCreate,
-<<<<<<< HEAD
-    UserLogin,
-    UserResponse,
-    Token
-)
-from app.core.security import (
-    hash_password,
-    verify_password,
-    create_access_token
-)
-=======
     UserResponse,
     UserLogin,
     Token
@@ -45,7 +27,6 @@ from app.core.security import (
     create_access_token
 )
 
->>>>>>> company-module
 from app.core.dependencies import get_current_user
 
 router = APIRouter(
@@ -53,12 +34,6 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
-<<<<<<< HEAD
-
-# ==========================================
-# Register User
-# ==========================================
-=======
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
@@ -66,7 +41,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Register User
 # ==========================================================
 
->>>>>>> company-module
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -77,34 +51,6 @@ def register_user(
     db: Session = Depends(get_db)
 ):
 
-<<<<<<< HEAD
-    existing_email = db.query(User).filter(
-        User.email == user.email
-    ).first()
-
-    if existing_email:
-        raise HTTPException(
-            status_code=400,
-            detail="Email already registered"
-        )
-
-    existing_phone = db.query(User).filter(
-        User.phone == user.phone
-    ).first()
-
-    if existing_phone:
-        raise HTTPException(
-            status_code=400,
-            detail="Phone number already registered"
-        )
-
-    if user.role.lower() not in ["admin", "company", "student"]:
-        raise HTTPException(
-            status_code=400,
-            detail="Role must be Admin, Company or Student"
-        )
-
-=======
     # -------------------------
     # Check Email
     # -------------------------
@@ -166,30 +112,10 @@ def register_user(
     # Create User
     # -------------------------
 
->>>>>>> company-module
     new_user = User(
         full_name=user.full_name,
         email=user.email,
         phone=user.phone,
-<<<<<<< HEAD
-        password=hash_password(user.password),
-        role=user.role.lower()
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
-
-
-# ==========================================
-# Login User
-# ==========================================
-@router.post(
-    "/login",
-    response_model=Token
-=======
         password=hashed_password,
         role=user.role.lower()
     )
@@ -223,39 +149,11 @@ def register_user(
     "/login",
     response_model=Token,
     status_code=status.HTTP_200_OK
->>>>>>> company-module
 )
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-<<<<<<< HEAD
-
-    db_user = db.query(User).filter(
-        User.email == form_data.username
-    ).first()
-
-    if db_user is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
-        )
-
-    if not verify_password(
-        form_data.password,
-        db_user.password
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
-        )
-
-    access_token = create_access_token(
-        data={
-            "sub": db_user.email,
-            "role": db_user.role
-        }
-=======
     """
     Login using email as username.
     """
@@ -298,7 +196,6 @@ def login_user(
         expires_delta=timedelta(
             minutes=ACCESS_TOKEN_EXPIRE_MINUTES
         )
->>>>>>> company-module
     )
 
     return {
@@ -307,16 +204,10 @@ def login_user(
     }
 
 
-<<<<<<< HEAD
-# ==========================================
-# Get Current User
-# ==========================================
-=======
 # ==========================================================
 # Current Logged-in User
 # ==========================================================
 
->>>>>>> company-module
 @router.get(
     "/me",
     response_model=UserResponse
@@ -324,10 +215,6 @@ def login_user(
 def get_logged_in_user(
     current_user: User = Depends(get_current_user)
 ):
-<<<<<<< HEAD
-
-    return current_user
-=======
     """
     Returns the currently authenticated user.
     """
@@ -371,4 +258,3 @@ def verify(
         "email": current_user.email,
         "role": current_user.role
     }
->>>>>>> company-module
