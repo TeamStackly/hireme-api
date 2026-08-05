@@ -18,6 +18,7 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY not found in .env file")
 
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
 )
@@ -32,7 +33,7 @@ pwd_context = CryptContext(
 )
 
 
-def hash_password(password: str):
+def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
@@ -54,7 +55,6 @@ def create_access_token(
     data: dict,
     expires_delta: Optional[timedelta] = None
 ):
-
     to_encode = data.copy()
 
     if expires_delta:
@@ -80,7 +80,6 @@ def create_access_token(
 # ==========================================================
 
 def verify_access_token(token: str):
-
     try:
         payload = jwt.decode(
             token,

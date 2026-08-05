@@ -56,7 +56,7 @@ class StudentProfileResponse(BaseModel):
     education: str
     skills: str
     experience: str
-    resume_path: Optional[str]
+    resume_path: Optional[str] = None
     location: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -155,6 +155,5 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None

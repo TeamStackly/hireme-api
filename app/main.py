@@ -6,7 +6,8 @@ from app.routers import (
     company,
     student,
     application,
-    admin
+    admin,
+    job 
 )
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +21,7 @@ app.include_router(company.router)
 app.include_router(student.router)
 app.include_router(application.router)
 app.include_router(admin.router)
+app.include_router(job.router)
 
 
 @app.get("/")
